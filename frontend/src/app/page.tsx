@@ -1,103 +1,155 @@
-import Image from "next/image";
+"use client";
+
+import { useState } from "react";
+import Navigation from "@/components/Navigation";
+import { Button } from "@/components/ui/Button";
+import { Select } from "@/components/ui/Select";
+import { Textarea } from "@/components/ui/Textarea";
+import { Input } from "@/components/ui/Input";
+
+// Mock data for templates
+const mockTemplates = [
+  {
+    id: "1",
+    title: "Basic Analysis",
+    content:
+      "Analyze the following text from the perspective of {{perspective}}:\n\n{{text}}",
+  },
+  {
+    id: "2",
+    title: "Email Writer",
+    content: "Write a professional email to {{recipient}} about {{subject}}.",
+  },
+  {
+    id: "3",
+    title: "Code Explanation",
+    content: "Explain the following {{language}} code:\n\n{{code}}",
+  },
+];
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [selectedTemplate, setSelectedTemplate] = useState("");
+  const [templateVariables, setTemplateVariables] = useState<
+    Record<string, string>
+  >({});
+  const [generatedOutput, setGeneratedOutput] = useState("");
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  // Find the selected template
+  const template = mockTemplates.find((t) => t.id === selectedTemplate);
+
+  // Extract variable placeholders from template content
+  const variables =
+    template?.content.match(/{{([^}]+)}}/g)?.map((v) => v.slice(2, -2)) || [];
+
+  // Handle template selection
+  const handleTemplateChange = (value: string) => {
+    setSelectedTemplate(value);
+    setTemplateVariables({});
+    setGeneratedOutput("");
+  };
+
+  // Handle variable input changes
+  const handleVariableChange = (variable: string, value: string) => {
+    setTemplateVariables((prev) => ({ ...prev, [variable]: value }));
+  };
+
+  // Generate prompt with variables filled in
+  const handleGenerate = () => {
+    if (!template) return;
+
+    let result = template.content;
+    Object.entries(templateVariables).forEach(([key, value]) => {
+      result = result.replace(new RegExp(`{{${key}}}`, "g"), value);
+    });
+
+    // Simulate LLM response
+    setGeneratedOutput(
+      `This is a simulated response to your prompt:\n\n${result}\n\nHere would be the actual LLM response based on that prompt.`
+    );
+  };
+
+  // Save to history
+  const handleSave = () => {
+    // This would save to history in a real implementation
+    alert("Saved to history!");
+  };
+
+  return (
+    <main className="min-h-screen bg-gray-50">
+      <Navigation />
+
+      <div className="max-w-4xl mx-auto px-4 py-8">
+        <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
+          <h1 className="text-2xl font-medium text-gray-800 mb-6">
+            Generate Prompt
+          </h1>
+
+          <div className="mb-6">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Select Template
+            </label>
+            <Select
+              value={selectedTemplate}
+              onValueChange={handleTemplateChange}
+            ></Select>
+          </div>
+
+          {template && (
+            <>
+              <div className="mb-6">
+                <h2 className="text-lg font-medium text-gray-700 mb-2">
+                  Template Variables
+                </h2>
+                <div className="space-y-4">
+                  {variables.map((variable) => (
+                    <div key={variable}>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        {variable}
+                      </label>
+                      <Input
+                        value={templateVariables[variable] || ""}
+                        onChange={(e) =>
+                          handleVariableChange(variable, e.target.value)
+                        }
+                        placeholder={`Enter ${variable}`}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="mb-6">
+                <Button onClick={handleGenerate} className="w-full">
+                  Generate
+                </Button>
+              </div>
+            </>
+          )}
+
+          {generatedOutput && (
+            <div className="mb-6">
+              <h2 className="text-lg font-medium text-gray-700 mb-2">Output</h2>
+              <div className="bg-gray-50 border border-gray-200 rounded-md p-4">
+                <Textarea
+                  value={generatedOutput}
+                  readOnly
+                  rows={8}
+                  className="bg-transparent"
+                />
+              </div>
+              <div className="mt-4">
+                <Button
+                  onClick={handleSave}
+                  variant="outline"
+                  className="w-full"
+                >
+                  Save Result
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+      </div>
+    </main>
   );
 }

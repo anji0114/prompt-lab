@@ -118,9 +118,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"nest-next-docker-infra@workspace:.":
+"prompt-lab@workspace:.":
   version: 0.0.0-use.local
-  resolution: "nest-next-docker-infra@workspace:."
+  resolution: "prompt-lab@workspace:."
   dependencies:
     concurrently: "npm:^9.1.2"
   languageName: unknown

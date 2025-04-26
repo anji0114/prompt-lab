@@ -1,5 +1,5 @@
 {
-  "name": "nest-next-docker-infra",
+  "name": "prompt-lab",
   "scripts": {
     "dev": "concurrently \"yarn --cwd frontend dev\" \"yarn --cwd backend start:dev\""
   },
