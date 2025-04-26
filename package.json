@@ -1,0 +1,10 @@
+{
+  "name": "nest-next-docker-infra",
+  "scripts": {
+    "dev": "concurrently \"yarn --cwd frontend dev\" \"yarn --cwd backend start:dev\""
+  },
+  "packageManager": "yarn@4.2.2",
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
